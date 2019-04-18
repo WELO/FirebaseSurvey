@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "177602515675",
+    "firebase_url": "https://fir-survey-d6a38.firebaseio.com",
+    "project_id": "fir-survey-d6a38",
+    "storage_bucket": "fir-survey-d6a38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177602515675:android:ca8694a714185d6a",
+        "android_client_info": {
+          "package_name": "untitled.example.com.firebasesurvey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "177602515675-7594p1qi0hjah17fn7ihe9elp3t067s6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "untitled.example.com.firebasesurvey",
+            "certificate_hash": "7cc8778c1dc44359e0068444145fb0e52057676b"
+          }
+        },
+        {
+          "client_id": "177602515675-ql6cnhhvqn7iov985uc9smu8s5chkl1f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUPMGNxsVy1bbk3d7GdUMMSDcSnhEroJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "177602515675-ql6cnhhvqn7iov985uc9smu8s5chkl1f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
