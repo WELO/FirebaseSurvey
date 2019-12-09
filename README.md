@@ -1,5 +1,5 @@
 # FirebaseSurvey
-實作Firebase各功能<br>
+實作Firebase各功能 with Rxjava2<br>
 <h2>Authentication</h2><br>
 <h3>SignUp and verify</h3>
 - Email register
