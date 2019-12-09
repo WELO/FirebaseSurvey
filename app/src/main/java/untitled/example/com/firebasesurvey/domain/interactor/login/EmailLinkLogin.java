@@ -10,7 +10,9 @@ import com.google.firebase.auth.FirebaseUser;
 import android.support.annotation.NonNull;
 
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.SingleSubject;
 import timber.log.Timber;
 import untitled.example.com.firebasesurvey.BuildConfig;
 
@@ -21,7 +23,7 @@ import untitled.example.com.firebasesurvey.BuildConfig;
 public class EmailLinkLogin {
     private final FirebaseAuth firebaseAuth;
     private CompletableSubject sendLinkCompletableSubject = CompletableSubject.create();
-    private CompletableSubject loginCompletableSubject = CompletableSubject.create();
+    private SingleSubject<FirebaseUser> loginCompletableSubject = SingleSubject.create();
     private ActionCodeSettings actionCodeSettings;
 
     public EmailLinkLogin(FirebaseAuth firebaseAuth) {
@@ -49,12 +51,12 @@ public class EmailLinkLogin {
         return sendLinkCompletableSubject;
     }
 
-    public Completable login(String email, String emailLink) {
+    public Single<FirebaseUser> login(String email, String emailLink) {
         if (firebaseAuth.isSignInWithEmailLink(emailLink)) {
             firebaseAuth.signInWithEmailLink(email, emailLink)
                     .addOnCompleteListener(loginOnCompleteListener);
         } else {
-            return Completable.error(new Exception("emailLink is invalid"));
+            return Single.error(new Exception("emailLink is invalid"));
         }
         return loginCompletableSubject;
     }
@@ -85,7 +87,7 @@ public class EmailLinkLogin {
                 Timber.d("signInWithEmailLink:success");
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 Timber.d("user isEmailVerified="+user.isEmailVerified());
-                loginCompletableSubject.onComplete();
+                loginCompletableSubject.onSuccess(user);
             } else {
 
                 Timber.w("signInWithEmailLink:failure", task.getException());

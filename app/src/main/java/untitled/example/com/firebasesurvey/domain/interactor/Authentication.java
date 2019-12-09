@@ -1,9 +1,12 @@
 package untitled.example.com.firebasesurvey.domain.interactor;
 
+import com.google.firebase.auth.FirebaseUser;
+
 import android.content.Intent;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.subjects.SingleSubject;
 import untitled.example.com.firebasesurvey.Utility.Define;
 import untitled.example.com.firebasesurvey.domain.interactor.login.EmailLinkLogin;
 import untitled.example.com.firebasesurvey.domain.interactor.login.EmailLogin;
@@ -18,24 +21,25 @@ import untitled.example.com.firebasesurvey.domain.interactor.login.SocialLogin;
 
 public class Authentication {
 
-    private final Define.LoginType loginType;
+    private final @Define.LoginType
+    int loginType;
     private SocialLogin socialLogin;
     private EmailLogin emailLogin;
     private EmailLinkLogin emailLinkLogin;
 
-    public Authentication(Define.LoginType loginType, EmailLogin emailLogin) {
+    public Authentication(@Define.LoginType int loginType, EmailLogin emailLogin) {
         this.loginType = loginType;
         this.emailLogin = emailLogin;
         this.emailLogin.init();
     }
 
-    public Authentication(Define.LoginType loginType, EmailLinkLogin emailLinkLogin) {
+    public Authentication(@Define.LoginType int loginType, EmailLinkLogin emailLinkLogin) {
         this.loginType = loginType;
         this.emailLinkLogin = emailLinkLogin;
         this.emailLinkLogin.init();
     }
 
-    public Authentication(Define.LoginType loginType, SocialLogin socialLogin) {
+    public Authentication(@Define.LoginType int loginType, SocialLogin socialLogin) {
         this.loginType = loginType;
         this.socialLogin = socialLogin;
         this.socialLogin.init();
@@ -45,40 +49,54 @@ public class Authentication {
         return socialLogin.verify(account);
     }
 
-    public Completable register(String account, String password) {
-        if (null != emailLogin && loginType.equals(Define.LoginType.EMAIL)) {
+    public Single<FirebaseUser> register(String account, String password) {
+        if (null != emailLogin && loginType == Define.EMAIL) {
             return emailLogin.register(account, password);
         }
-        return Completable.error(new Exception("Not Email type"));
+        return Single.error(new Exception("Not Email type"));
+    }
+
+    public Single<FirebaseUser> verify() {
+        if (null != emailLogin && loginType == Define.EMAIL) {
+            return emailLogin.verify();
+        }
+        return Single.error(new Exception("Not Email type"));
+    }
+
+    public Single<FirebaseUser> linkEmailCredential(String account, String password) {
+        if (null != emailLogin && loginType == Define.EMAIL) {
+            return emailLogin.linkCredential(account, password);
+        }
+        return Single.error(new Exception("Not Email type"));
     }
 
     public Completable sendEmailLink(String email) {
-        if (null != emailLinkLogin && loginType.equals(Define.LoginType.EMAIL_LINK)) {
+        if (null != emailLinkLogin && loginType == Define.EMAIL_LINK) {
             return emailLinkLogin.sendLink(email);
         }
         return Completable.error(new Exception("Not Email type"));
     }
 
-    public Completable login(String account, String password) {
-        if (loginType.equals(Define.LoginType.EMAIL)) {
+    public Single<FirebaseUser> login(String account, String password) {
+        if (loginType == Define.EMAIL) {
             return emailLogin.login(account, password);
-        } else if (loginType.equals(Define.LoginType.EMAIL_LINK)) {
+        } else if (loginType == Define.EMAIL_LINK) {
             return emailLinkLogin.login(account, password);
         }
         return socialLogin.login(account, password);
     }
 
-    public Completable linkCredential(String account, String password) {
-        if (loginType.equals(Define.LoginType.EMAIL)) {
-            return emailLogin.login(account, password);
+    public Single<FirebaseUser> linkSocailCredential() {
+        if (loginType == Define.EMAIL) {
+            return Single.error(new Exception("no email"));
         }
-        return socialLogin.login(account, password);
+        return socialLogin.linkCredential();
     }
 
     public Completable logout() {
-        if (loginType.equals(Define.LoginType.EMAIL)) {
+        if (loginType == Define.EMAIL) {
             return emailLogin.logout();
-        } else if (loginType.equals(Define.LoginType.EMAIL_LINK)) {
+        } else if (loginType == Define.EMAIL_LINK) {
             return emailLinkLogin.logout();
         }
         return socialLogin.logout();
@@ -86,13 +104,13 @@ public class Authentication {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (loginType) {
-            case LINE:
+            case Define.LINE:
                 ((LineLogin) socialLogin).onActivityResult(requestCode, resultCode, data);
                 break;
-            case FACEBOOK:
+            case Define.FACEBOOK:
                 ((FacebookLogin) socialLogin).onActivityResult(requestCode, resultCode, data);
                 break;
-            case GOOGLE:
+            case Define.GOOGLE:
                 ((GoogleLogin) socialLogin).onActivityResult(requestCode, resultCode, data);
                 break;
         }

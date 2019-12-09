@@ -11,7 +11,10 @@ import android.content.Intent;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import timber.log.Timber;
 import untitled.example.com.firebasesurvey.Utility.Define;
+import untitled.example.com.firebasesurvey.Utility.SharedPrefMgr;
+import untitled.example.com.firebasesurvey.Utility.Untility;
 import untitled.example.com.firebasesurvey.domain.interactor.Authentication;
 import untitled.example.com.firebasesurvey.domain.interactor.Storage;
 import untitled.example.com.firebasesurvey.domain.interactor.TestDatabase;
@@ -43,7 +46,8 @@ public class FirebaseViewModel extends ViewModel {
     private Storage storage;
     private FirebaseUserFile firebaseUserFile;
     private FirebaseNotificationRepository firebaseNotificationRepository;
-    private Define.LoginType loginType;
+    private @Define.LoginType
+    int loginType;
 
     public FirebaseViewModel(Context context, Activity activity) {
         this.activity = activity;
@@ -56,32 +60,33 @@ public class FirebaseViewModel extends ViewModel {
 
     }
 
-    public void initLoginType(Define.LoginType loginType) {
+    public void initLoginType(@Define.LoginType int loginType) {
         this.loginType = loginType;
         switch (loginType) {
-            case EMAIL:
+            case Define.EMAIL:
                 authentication = new Authentication(loginType, new EmailLogin(firebaseAuth));
                 break;
-            case EMAIL_LINK:
+            case Define.EMAIL_LINK:
                 authentication = new Authentication(loginType, new EmailLinkLogin(firebaseAuth));
                 break;
-            case LINE:
+            case Define.LINE:
                 authentication = new Authentication(loginType, new LineLogin(activity, firebaseAuth));
                 break;
-            case GOOGLE:
+            case Define.GOOGLE:
                 authentication = new Authentication(loginType, new GoogleLogin(activity, firebaseAuth));
                 break;
-            case PHONE:
+            case Define.PHONE:
                 authentication = new Authentication(loginType, new PhoneLogin(activity, firebaseAuth));
                 break;
-            case FACEBOOK:
+            case Define.FACEBOOK:
                 authentication = new Authentication(loginType, new FacebookLogin(activity, firebaseAuth));
                 break;
         }
 
     }
 
-    public Define.LoginType getLoginType() {
+    public @Define.LoginType
+    int getLoginType() {
         return loginType;
     }
 
@@ -119,7 +124,41 @@ public class FirebaseViewModel extends ViewModel {
 
     public Completable register(String account, String password) {
         if (null != authentication) {
-            return authentication.register(account, password);
+            return authentication.register(account, password).flatMapCompletable(user -> {
+                SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+                Timber.d("user = " + Untility.objectToString(user));
+                Timber.d("user isEmailVerified= " + user.isEmailVerified());
+
+                return Completable.complete();
+            });
+        } else {
+            return Completable.error(new Exception("authentication is null"));
+        }
+    }
+
+    public Completable verify() {
+        if (null != authentication) {
+            return authentication.verify().flatMapCompletable(user -> {
+                SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+                Timber.d("user = " + Untility.objectToString(user));
+                Timber.d("user isEmailVerified= " + user.isEmailVerified());
+
+                return Completable.complete();
+            });
+        } else {
+            return Completable.error(new Exception("authentication is null"));
+        }
+    }
+
+    public Completable linkEmailCredential(String account, String password) {
+        if (null != authentication) {
+            return authentication.linkEmailCredential(account, password).flatMapCompletable(user -> {
+                SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+                Timber.d("user = " + Untility.objectToString(user));
+                Timber.d("user isEmailVerified= " + user.isEmailVerified());
+
+                return Completable.complete();
+            });
         } else {
             return Completable.error(new Exception("authentication is null"));
         }
@@ -127,7 +166,27 @@ public class FirebaseViewModel extends ViewModel {
 
     public Completable login(String account, String password) {
         if (null != authentication) {
-            return authentication.login(account, password);
+            return authentication.login(account, password).flatMapCompletable(user -> {
+                SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+                Timber.d("user = " + Untility.objectToString(user));
+                Timber.d("user isEmailVerified= " + user.isEmailVerified());
+
+                return Completable.complete();
+            });
+        } else {
+            return Completable.error(new Exception("authentication is null"));
+        }
+    }
+
+    public Completable linkSocailCredential() {
+        if (null != authentication) {
+            return authentication.linkSocailCredential().flatMapCompletable(user -> {
+                SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+                Timber.d("user = " + Untility.objectToString(user));
+                Timber.d("user isEmailVerified= " + user.isEmailVerified());
+
+                return Completable.complete();
+            });
         } else {
             return Completable.error(new Exception("authentication is null"));
         }
@@ -142,7 +201,22 @@ public class FirebaseViewModel extends ViewModel {
     }
 
     public Completable addPhone(String verificationId, String code) {
-        return firebaseUserFile.updatePhone(verificationId, code);
+        return firebaseUserFile.updatePhone(verificationId, code).flatMapCompletable(user -> {
+            SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+            Timber.d("user = " + Untility.objectToString(user));
+            Timber.d("user isEmailVerified= " + user.isEmailVerified());
+
+            return Completable.complete();
+        });
+    }
+
+    public Completable updateEmail(String email) {
+        return firebaseUserFile.updateEmail(email).flatMapCompletable(user -> {
+            SharedPrefMgr.saveSharedPref(activity, Define.SPFS_CURRENT_UID, user.getUid(), Define.SPFS_CATEGORY);
+            Timber.d("user = " + Untility.objectToString(user));
+            Timber.d("user isEmailVerified= " + user.isEmailVerified());
+            return Completable.complete();
+        });
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

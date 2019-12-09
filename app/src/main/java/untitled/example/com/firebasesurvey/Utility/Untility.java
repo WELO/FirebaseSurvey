@@ -1,5 +1,7 @@
 package untitled.example.com.firebasesurvey.Utility;
 
+import com.google.gson.Gson;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -45,5 +47,10 @@ public class Untility {
     public static String getFirebaseCustomToken(String uid) {
 
         return "";
+    }
+
+    public static <T>String objectToString(T object){
+        Gson gson = new Gson();
+        return gson.toJson(object);
     }
 }

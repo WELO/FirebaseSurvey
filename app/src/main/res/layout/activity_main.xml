@@ -47,10 +47,16 @@
                         android:text="11111111"/>
 
                 <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Email register"
+                    android:onClick="EmailRegister"/>
+
+                <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Email register"
-                        android:onClick="EmailRegister"/>
+                        android:text="Email verify"
+                        android:onClick="EmailVerify"/>
 
                 <Button
                         android:layout_width="match_parent"
@@ -61,20 +67,43 @@
                 <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="Email Link Credential"
+                        android:onClick="EmailLinkCredential"/>
+
+                <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:text="Send Email Link"
                         android:onClick="sendEmailLink"/>
 
                 <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="update Email"
+                        android:onClick="updateEmail"/>
+
+                <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:text="Google"
                         android:onClick="GoogleLogin"/>
+                <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Google link"
+                        android:onClick="GoogleLink"/>
 
                 <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="FB"
                         android:onClick="FBLogin"/>
+
+                <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="FB link"
+                        android:onClick="FBLink"/>
 
                 <Button
                         android:layout_width="match_parent"

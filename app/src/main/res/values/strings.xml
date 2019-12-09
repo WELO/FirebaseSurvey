@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">FirebaseSurvey</string>
-    <string name="facebook_app_id">facebook_app_id</string>
-    <string name="fb_login_protocol_scheme">fb_login_protocol_scheme</string>
-    <string name="google_login_api_key">google_login_api_key</string>
+    <string name="facebook_app_id">321346408563656</string>
+    <string name="fb_login_protocol_scheme">fb321346408563656</string>
+    <string name="google_login_api_key">AIzaSyDUPMGNxsVy1bbk3d7GdUMMSDcSnhEroJQ</string>
 </resources>

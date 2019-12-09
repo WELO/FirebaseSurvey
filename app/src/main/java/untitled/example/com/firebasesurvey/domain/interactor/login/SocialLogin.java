@@ -1,5 +1,7 @@
 package untitled.example.com.firebasesurvey.domain.interactor.login;
 
+import com.google.firebase.auth.FirebaseUser;
+
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
@@ -12,9 +14,11 @@ public interface SocialLogin {
 
     Single<String> verify(String account);
 
-    Completable login(String account, String password);
+    Single<FirebaseUser> login(String account, String password);
 
     Completable logout();
+
+    Single<FirebaseUser> linkCredential();
 
 
 }

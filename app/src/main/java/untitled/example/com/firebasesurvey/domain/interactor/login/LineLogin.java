@@ -23,6 +23,7 @@ import java.util.Arrays;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.SingleSubject;
 import timber.log.Timber;
 import untitled.example.com.firebasesurvey.domain.repository.cloud.FirebaseFunctionApiClient;
 import untitled.example.com.firebasesurvey.domain.repository.cloud.LineApiClient;
@@ -40,7 +41,7 @@ public class LineLogin implements SocialLogin {
     private static final int REQUEST_CODE = 1;
     private final FirebaseAuth firebaseAuth;
     private final Activity activity;
-    private CompletableSubject loginCompletableSubject = CompletableSubject.create();
+    private SingleSubject<FirebaseUser> loginCompletableSubject = SingleSubject.create();
     private String BEARER_AUTH_PREFIX = "Bearer ";
     private LineProfileResponseBean lineProfileResponseBean = null;
 
@@ -60,7 +61,7 @@ public class LineLogin implements SocialLogin {
     }
 
     @Override
-    public Completable login(String token, String password) {
+    public Single<FirebaseUser> login(String token, String password) {
         Intent loginIntent = LineLoginApi.getLoginIntent(
                 activity,
                 LINE_CHENNAL_ID,
@@ -79,7 +80,12 @@ public class LineLogin implements SocialLogin {
                 // Sign in success, update UI with the signed-in user's information
                 Timber.d("signInWithCustomToken:success");
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                updateIdIdentifier(user);
+                Timber.d("getProviders size = " + user.getProviders().size());
+                for (String providerId : user.getProviders()) {
+                    Timber.d("getProviders = " + providerId);
+                }
+                loginCompletableSubject.onSuccess(user);
+                //updateIdIdentifier(user);
             } else {
                 // If sign in fails, display a message to the user.
                 Timber.w("signInWithCustomToken:failure " + task.getException());
@@ -111,7 +117,7 @@ public class LineLogin implements SocialLogin {
                                     + " getLastSignInTimestamp = " + newUser.getMetadata().getLastSignInTimestamp()
                                     + " getProviderId = " + newUser.getProviderId()
                                     + " getPhotoUrl = " + newUser.getPhotoUrl().toString());
-                            loginCompletableSubject.onComplete();
+                            loginCompletableSubject.onSuccess(newUser);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -126,7 +132,7 @@ public class LineLogin implements SocialLogin {
                             if (task.isSuccessful()) {
                                 Timber.d("updateEmail updated.");
                             }
-                            loginCompletableSubject.onComplete();
+                            loginCompletableSubject.onSuccess(user);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -145,6 +151,12 @@ public class LineLogin implements SocialLogin {
             firebaseAuth.signOut();
         });
     }
+
+    @Override
+    public Single<FirebaseUser> linkCredential() {
+        return null;
+    }
+
 
     private Single<String> getLineUid(String token) {
         return LineApiClient.getLineAPI().getProfile(BEARER_AUTH_PREFIX + token).map(lineProfileResponseBean -> {

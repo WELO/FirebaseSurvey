@@ -6,6 +6,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -33,6 +34,7 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.SingleSubject;
 import timber.log.Timber;
 
 /**
@@ -43,7 +45,9 @@ public class FacebookLogin implements SocialLogin {
 
     private Activity activity;
     private CallbackManager mCallbackManager;
-    private CompletableSubject loginCompletableSubject = CompletableSubject.create();
+    private SingleSubject<FirebaseUser> loginCompletableSubject = SingleSubject.create();
+    private SingleSubject<FirebaseUser> linkCompletableSubject = SingleSubject.create();
+
     private ProfileTracker mProfileTracker;
     private String FACEBOOK_PHOTO_URL = "http://graph.facebook.com";
     private final FirebaseAuth firebaseAuth;
@@ -67,9 +71,9 @@ public class FacebookLogin implements SocialLogin {
     }
 
     @Override
-    public Completable login(String account, String password) {
+    public Single<FirebaseUser> login(String account, String password) {
         LoginManager.getInstance().logOut();
-        LoginManager.getInstance().registerCallback(mCallbackManager,mLoginResultFacebookCallback);
+        LoginManager.getInstance().registerCallback(mCallbackManager, mLoginResultFacebookCallback);
         return loginCompletableSubject;
     }
 
@@ -79,6 +83,13 @@ public class FacebookLogin implements SocialLogin {
             LoginManager.getInstance().logOut();
             firebaseAuth.signOut();
         });
+    }
+
+    @Override
+    public Single<FirebaseUser> linkCredential() {
+        LoginManager.getInstance().logOut();
+        LoginManager.getInstance().registerCallback(mCallbackManager, mLinkCredentialResultFacebookCallback);
+        return linkCompletableSubject;
     }
 
     public List<String> getFbPermissions() {
@@ -103,13 +114,13 @@ public class FacebookLogin implements SocialLogin {
                         // profile2 is the new profile
                         Profile.setCurrentProfile(profile2);
                         mProfileTracker.stopTracking();
-                        handleLogInResult(loginResult);
+                        handleLogInResult(loginResult, false);
                     }
                 };
                 // no need to call startTracking() on mProfileTracker
                 // because it is called by its constructor, internally.
             } else {
-                handleLogInResult(loginResult);
+                handleLogInResult(loginResult, false);
             }
         }
 
@@ -126,12 +137,46 @@ public class FacebookLogin implements SocialLogin {
         }
     };
 
+    FacebookCallback<LoginResult> mLinkCredentialResultFacebookCallback = new FacebookCallback<LoginResult>() {
+
+        @Override
+        public void onSuccess(LoginResult loginResult) {
+            if (Profile.getCurrentProfile() == null) {
+                mProfileTracker = new ProfileTracker() {
+                    @Override
+                    protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
+                        // profile2 is the new profile
+                        Profile.setCurrentProfile(profile2);
+                        mProfileTracker.stopTracking();
+                        handleLogInResult(loginResult, true);
+                    }
+                };
+                // no need to call startTracking() on mProfileTracker
+                // because it is called by its constructor, internally.
+            } else {
+                handleLogInResult(loginResult, true);
+            }
+        }
+
+        @Override
+        public void onCancel() {
+            linkCompletableSubject.onError(new Exception("onCancel"));
+
+        }
+
+        @Override
+        public void onError(FacebookException error) {
+            linkCompletableSubject.onError(error);
+
+        }
+    };
+
     /**
      * Handle the Facebook login result
      *
      * @param loginResult the login result
      */
-    private void handleLogInResult(final LoginResult loginResult) {
+    private void handleLogInResult(final LoginResult loginResult, boolean isLinkCredential) {
         GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(),
                 (JSONObject object, GraphResponse response) -> {
                     try {
@@ -144,7 +189,12 @@ public class FacebookLogin implements SocialLogin {
                             String token = loginResult.getAccessToken().getToken();
                             Uri avatar = profile.getProfilePictureUri(100, 100);
                             String avatarImage = FACEBOOK_PHOTO_URL + avatar.getPath();
-                            firebaseLogin(token);
+                            if (isLinkCredential) {
+                                AuthCredential credential = FacebookAuthProvider.getCredential(token);
+                                linkCredential(credential);
+                            } else {
+                                firebaseLogin(token);
+                            }
 
                         } else {
                             loginCompletableSubject.onError(new Exception("profile is null"));
@@ -161,40 +211,41 @@ public class FacebookLogin implements SocialLogin {
         request.executeAsync();
     }
 
-    private void firebaseLogin(String accessToken){
+    private void firebaseLogin(String accessToken) {
         AuthCredential credential = FacebookAuthProvider.getCredential(accessToken);
-        //linkCredential(credential);
         firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>(){
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Timber.d("signInWithCredential:success");
-                            loginCompletableSubject.onComplete();
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                            loginCompletableSubject.onSuccess(user);
                         } else {
                             Timber.w("signInWithCredential:failure", task.getException());
-                            linkCredential(credential);
+                            loginCompletableSubject.onError(task.getException());
                         }
                     }
                 });
     }
 
-    public void linkCredential(AuthCredential credential){
+    public void linkCredential(AuthCredential credential) {
         firebaseAuth.getCurrentUser()
                 .linkWithCredential(credential).addOnCompleteListener(mAuthResultOnCompleteListener);
     }
 
-    OnCompleteListener<AuthResult> mAuthResultOnCompleteListener = new OnCompleteListener<AuthResult>(){
+    OnCompleteListener<AuthResult> mAuthResultOnCompleteListener = new OnCompleteListener<AuthResult>() {
 
         @Override
         public void onComplete(@NonNull Task<AuthResult> task) {
             if (task.isSuccessful()) {
                 Timber.d("signInWithCredential:success");
-                loginCompletableSubject.onComplete();
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                linkCompletableSubject.onSuccess(user);
             } else {
                 Timber.w("signInWithCredential:failure", task.getException());
-                loginCompletableSubject.onError(task.getException());
+                linkCompletableSubject.onError(task.getException());
             }
         }
     };

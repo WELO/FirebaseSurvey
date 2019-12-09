@@ -28,7 +28,7 @@ import timber.log.Timber;
 public class PhoneLogin implements SocialLogin {
 
     private SingleSubject<String> verifySingleSubject = SingleSubject.create();
-    private CompletableSubject loginCompletableSubject = CompletableSubject.create();
+    private SingleSubject<FirebaseUser> loginCompletableSubject = SingleSubject.create();
     private Activity activity;
     private final FirebaseAuth firebaseAuth;
 
@@ -83,7 +83,7 @@ public class PhoneLogin implements SocialLogin {
     };
 
     @Override
-    public Completable login(String verificationId, String code) {
+    public Single<FirebaseUser> login(String verificationId, String code) {
         Timber.d("login mVerificationId = " + verificationId);
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         firebaseAuth.signInWithCredential(credential)
@@ -100,7 +100,7 @@ public class PhoneLogin implements SocialLogin {
 
                 FirebaseUser user = task.getResult().getUser();
                 Timber.d("user = " + String.valueOf(user));
-                loginCompletableSubject.onComplete();
+                loginCompletableSubject.onSuccess(user);
                 // ...
             } else {
                 // Sign in failed, display a message and update the UI
@@ -117,4 +117,10 @@ public class PhoneLogin implements SocialLogin {
     public Completable logout() {
         return Completable.fromAction(() -> firebaseAuth.signOut());
     }
+
+    @Override
+    public Single<FirebaseUser> linkCredential() {
+        return null;
+    }
+
 }

@@ -15,7 +15,9 @@ import android.support.annotation.NonNull;
 import java.util.Objects;
 
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.SingleSubject;
 import timber.log.Timber;
 
 /**
@@ -25,10 +27,10 @@ import timber.log.Timber;
 public class FirebaseUserFile {
 
     private FirebaseAuth firebaseAuth;
-    FirebaseUser user;
-    private CompletableSubject updatePhoneCompletableSubject = CompletableSubject.create();
-    private CompletableSubject updateEmailCompletableSubject = CompletableSubject.create();
-    private CompletableSubject updateProfileCompletableSubject = CompletableSubject.create();
+    private FirebaseUser user;
+    private SingleSubject<FirebaseUser> updatePhoneCompletableSubject = SingleSubject.create();
+    private SingleSubject<FirebaseUser> updateEmailCompletableSubject = SingleSubject.create();
+    private SingleSubject<FirebaseUser> updateProfileCompletableSubject = SingleSubject.create();
 
 
     public FirebaseUserFile(FirebaseAuth firebaseAuth) {
@@ -36,7 +38,7 @@ public class FirebaseUserFile {
         user = firebaseAuth.getCurrentUser();
     }
 
-    public Completable updateProfile(String displayname, String photoUri) {
+    public Single<FirebaseUser> updateProfile(String displayname, String photoUri) {
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                 .setDisplayName(displayname)
                 .setPhotoUri(Uri.parse(photoUri))
@@ -52,7 +54,7 @@ public class FirebaseUserFile {
         @Override
         public void onComplete(@NonNull Task<Void> task) {
             if (task.isSuccessful()) {
-                updateProfileCompletableSubject.onComplete();
+                updateProfileCompletableSubject.onSuccess(firebaseAuth.getCurrentUser());
             } else {
                 updateProfileCompletableSubject.onError(task.getException());
             }
@@ -67,7 +69,7 @@ public class FirebaseUserFile {
     };
 
 
-    public Completable updateEmail(String email) {
+    public Single<FirebaseUser> updateEmail(String email) {
         user.updateEmail(email)
                 .addOnCompleteListener(updateEmailOnCompleteListener)
                 .addOnFailureListener(updateEmailOnFailureListener);
@@ -80,7 +82,7 @@ public class FirebaseUserFile {
         public void onComplete(@NonNull Task<Void> task) {
             if (task.isSuccessful()) {
                 Timber.d(" firebaseAuth.getCurrentUser() = " + Objects.requireNonNull(firebaseAuth.getCurrentUser()).getPhoneNumber());
-                updateEmailCompletableSubject.onComplete();
+                updateEmailCompletableSubject.onSuccess(firebaseAuth.getCurrentUser());
             } else {
                 updateEmailCompletableSubject.onError(task.getException());
             }
@@ -94,7 +96,7 @@ public class FirebaseUserFile {
         }
     };
 
-    public Completable updatePhone(String verificationId, String code) {
+    public Single<FirebaseUser> updatePhone(String verificationId, String code) {
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         user.updatePhoneNumber(credential)
                 .addOnCompleteListener(updatePhoneOnCompleteListener)
@@ -108,7 +110,7 @@ public class FirebaseUserFile {
         public void onComplete(@NonNull Task<Void> task) {
             if (task.isSuccessful()) {
                 Timber.d(" firebaseAuth.getCurrentUser() = " + Objects.requireNonNull(firebaseAuth.getCurrentUser()).getPhoneNumber());
-                updatePhoneCompletableSubject.onComplete();
+                updatePhoneCompletableSubject.onSuccess(firebaseAuth.getCurrentUser());
             } else {
                 updatePhoneCompletableSubject.onError(task.getException());
             }

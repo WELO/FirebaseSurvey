@@ -81,13 +81,13 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
         }
         if (null != getIntent() && null != getIntent().getData()) {
             Timber.d("EmailLinkLogin onResume");
-            viewModel.initLoginType(Define.LoginType.EMAIL_LINK);
+            viewModel.initLoginType(Define.EMAIL_LINK);
             viewModel.login(etAccount.getText().toString(), getIntent().getData().toString())
                     .subscribe(() -> {
                         setUserUid();
                         Timber.d("EmailLinkLogin subscribe");
                         Toast.makeText(context, "EmailLinkLogin subscribe", Toast.LENGTH_LONG).show();
-
+                        successShow();
                     }, this::errorhandle);
         }
         super.onResume();
@@ -98,13 +98,28 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
         setEvent("EmailRegister", etAccount.getText().toString() + " " + etPassword.getText().toString());
 
-        viewModel.initLoginType(Define.LoginType.EMAIL);
+        viewModel.initLoginType(Define.EMAIL);
         viewModel.register(etAccount.getText().toString(), etPassword.getText().toString())
                 .subscribe(() -> {
                     setUserUid();
                     Timber.d("EmailRegister subscribe");
                     Toast.makeText(context, "EmailRegister subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
+                }, this::errorhandle);
+    }
 
+    public void EmailVerify(View view) {
+        Timber.d("EmailVerify");
+
+        setEvent("EmailVerify", etAccount.getText().toString() + " " + etPassword.getText().toString());
+
+        viewModel.initLoginType(Define.EMAIL);
+        viewModel.verify()
+                .subscribe(() -> {
+                    setUserUid();
+                    Timber.d("EmailVerify subscribe");
+                    Toast.makeText(context, "EmailVerify subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                 }, this::errorhandle);
     }
 
@@ -113,23 +128,50 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
         setEvent("EmailLogin", etAccount.getText().toString() + " " + etPassword.getText().toString());
 
-        viewModel.initLoginType(Define.LoginType.EMAIL);
+        viewModel.initLoginType(Define.EMAIL);
         viewModel.login(etAccount.getText().toString(), etPassword.getText().toString())
                 .subscribe(() -> {
                     setUserUid();
                     Timber.d("EmailLogin subscribe");
                     Toast.makeText(context, "EmailLogin subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
+                }, this::errorhandle);
+    }
+
+    public void EmailLinkCredential(View view) {
+        Timber.d("EmailLinkCredential");
+
+        setEvent("EmailLinkCredential", etAccount.getText().toString() + " " + etPassword.getText().toString());
+
+        viewModel.initLoginType(Define.EMAIL);
+        viewModel.linkEmailCredential(etAccount.getText().toString(), etPassword.getText().toString())
+                .subscribe(() -> {
+                    setUserUid();
+                    Timber.d("EmailLinkCredential subscribe");
+                    Toast.makeText(context, "EmailLinkCredential subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                 }, this::errorhandle);
     }
 
     public void sendEmailLink(View view) {
         Timber.d("sendEmailLink");
         setEvent("sendEmailLink", etAccount.getText().toString());
-        viewModel.initLoginType(Define.LoginType.EMAIL_LINK);
+        viewModel.initLoginType(Define.EMAIL_LINK);
         viewModel.sendEmailLink(etAccount.getText().toString())
                 .subscribe(() -> {
                     Timber.d("sendEmailLink subscribe");
                     Toast.makeText(context, "sendEmailLink subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
+                }, this::errorhandle);
+    }
+
+    public void updateEmail(View view) {
+        setEvent("updateEmail", verificationId);
+        viewModel.updateEmail(etAccount.getText().toString())
+                .subscribe(() -> {
+                    Timber.d("updateEmail subscribe");
+                    Toast.makeText(context, "updateEmail subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                 }, this::errorhandle);
     }
 
@@ -138,12 +180,28 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
         setEvent("GoogleLogin", "");
 
-        viewModel.initLoginType(Define.LoginType.GOOGLE);
+        viewModel.initLoginType(Define.GOOGLE);
         viewModel.login("", "")
                 .subscribe(() -> {
                     setUserUid();
                     Timber.d("GoogleLogin subscribe");
                     Toast.makeText(context, "GoogleLogin subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
+                }, this::errorhandle);
+    }
+
+    public void GoogleLink(View view) {
+        Timber.d("GoogleLink");
+
+        setEvent("GoogleLink", "");
+
+        viewModel.initLoginType(Define.GOOGLE);
+        viewModel.linkSocailCredential()
+                .subscribe(() -> {
+                    setUserUid();
+                    Timber.d("GoogleLink subscribe");
+                    Toast.makeText(context, "GoogleLink subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                 }, this::errorhandle);
     }
 
@@ -152,12 +210,28 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
         setEvent("FBLogin", "");
 
-        viewModel.initLoginType(Define.LoginType.FACEBOOK);
+        viewModel.initLoginType(Define.FACEBOOK);
         viewModel.login("", "")
                 .subscribe(() -> {
                     setUserUid();
                     Timber.d("FBLogin subscribe");
                     Toast.makeText(context, "FBLogin subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
+                }, this::errorhandle);
+    }
+
+    public void FBLink(View view) {
+        Timber.d("FBLink");
+
+        setEvent("FBLink", "");
+
+        viewModel.initLoginType(Define.FACEBOOK);
+        viewModel.linkSocailCredential()
+                .subscribe(() -> {
+                    setUserUid();
+                    Timber.d("FBLink subscribe");
+                    Toast.makeText(context, "FBLink subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                 }, this::errorhandle);
     }
 
@@ -165,12 +239,13 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
         Timber.d("lineLogin");
         setEvent("lineLogin", "");
 
-        viewModel.initLoginType(Define.LoginType.LINE);
+        viewModel.initLoginType(Define.LINE);
         viewModel.login("", "")
                 .subscribe(() -> {
                     setUserUid();
                     Timber.d("lineLogin subscribe");
                     Toast.makeText(context, "lineLogin subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                 }, this::errorhandle);
 
 //        viewModel.login("eyJhbGciOiJIUzI1NiJ9.htVFn2fhm1z3dsKNeYkyB_AgFo9fwVQRsGzK856kMytJrFnD2T6oTlhFNRF9OgR04cmmPOBGd2t28N0rWqEiSTbuNMTr9TCnxXm222ewhJAQDeKW8gzjjwTpF1uIN1ubVbbBQ1MIl7fSxtfLr8zwmepP2u2mT14BizTKld2dyj0.ZX3sPKEAsBGWHJXYhFq2SoMmkoHi79NnTY8NQLgfdvo", "")
@@ -178,14 +253,16 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
         //viewModel.login("", "").subscribe(() -> Timber.d("lineLogin subscribe"), this::errorhandle);
     }
 
+
     public void phoneVerify(View view) {
         Timber.d("phoneVerify");
         setEvent("phoneVerify", "");
-        viewModel.initLoginType(Define.LoginType.PHONE);
+        viewModel.initLoginType(Define.PHONE);
         viewModel.verify(etPhone.getText().toString())
                 .subscribe(verificationId -> {
                     Timber.d("phoneVerify subscribe");
                     Toast.makeText(context, "phoneVerify subscribe", Toast.LENGTH_LONG).show();
+                    successShow();
                     this.verificationId = verificationId;
                 });//,this::errorhandle);
     }
@@ -200,6 +277,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
                         setUserUid();
                         Timber.d("phoneLogin subscribe");
                         Toast.makeText(context, "phoneLogin subscribe", Toast.LENGTH_LONG).show();
+                        successShow();
                         verificationId = "";
                     }, this::errorhandle);
         } else {
@@ -217,6 +295,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
                     .subscribe(() -> {
                         Timber.d("addPhone subscribe");
                         Toast.makeText(context, "addPhone subscribe", Toast.LENGTH_LONG).show();
+                        successShow();
                         verificationId = "";
                     }, this::errorhandle);
         } else {
@@ -305,6 +384,12 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
         //setUserProperty("uid", firebaseAuth.getCurrentUser().getUid());
         setUserProperty("email", firebaseAuth.getCurrentUser().getEmail());
         setUidEvent("uid", firebaseAuth.getCurrentUser().getUid());
+    }
+
+    private void successShow() {
+        String uid = SharedPrefMgr.loadSharedPref(activity, Define.SPFS_CURRENT_UID, "", Define.SPFS_CATEGORY);
+        Toast.makeText(context, "current uid = " + uid, Toast.LENGTH_LONG).show();
+
     }
 
     private void errorhandle(Throwable throwable) {
