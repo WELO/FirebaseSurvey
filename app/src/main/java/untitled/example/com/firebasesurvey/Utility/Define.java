@@ -1,6 +1,6 @@
 package untitled.example.com.firebasesurvey.Utility;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -31,9 +31,9 @@ public class Define {
         ICON, OTHER
     }
 
-    public static final String LINE_CHENNAL_ID = /*User Line channel id for Line login*/;
-    public static final String GOOGLE_CLIENT_ID = /*User Google Cient id*/;
-    public static final String FIREBASE_SERVER_KEY = /*User Firebase project server key for fcm notification*/;
+    public static final String LINE_CHENNAL_ID = "1560540369";
+    public static final String GOOGLE_CLIENT_ID = "177602515675-ql6cnhhvqn7iov985uc9smu8s5chkl1f.apps.googleusercontent.com";
+    public static final String FIREBASE_SERVER_KEY = "AAAAKVnvUts:APA91bFndz9qI2fL0QEGDWWoOaqiNzDuHEW_0umFKDd2fqW6II35bkHixkbKKWb5e4WsO4-_3qDDtKKCRduIeXP_YyldvTb8i9IkmccNIkh39T-67phdhAHpyf3FrB2PlIZT33CsgbHp";
 
     //Sharepref
     public static final String SPFS_FCM_TOKEN = "SpfsFcmToken";

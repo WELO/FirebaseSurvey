@@ -10,13 +10,11 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Objects;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.SingleSubject;
 import timber.log.Timber;
 

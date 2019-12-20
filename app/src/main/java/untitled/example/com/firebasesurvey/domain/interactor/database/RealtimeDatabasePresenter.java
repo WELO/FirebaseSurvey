@@ -12,6 +12,7 @@ import untitled.example.com.firebasesurvey.domain.model.User;
  */
 
 public class RealtimeDatabasePresenter implements FirebaseDatabasePresenter {
+    /*Implement in parental control */
     private DatabaseReference database;
 
     public RealtimeDatabasePresenter() {

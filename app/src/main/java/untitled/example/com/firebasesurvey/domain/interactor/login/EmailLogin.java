@@ -7,8 +7,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -103,9 +104,9 @@ public class EmailLogin {
                 Timber.d("signInWithEmail:success");
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                Timber.d("getProviders size = " + user.getProviders().size());
-                for (String providerId : user.getProviders()) {
-                    Timber.d("getProviders = " + providerId);
+                Timber.d("getProviders size = " + user.getProviderData().size());
+                for (UserInfo userInfo : user.getProviderData()) {
+                    Timber.d("getProviders = " + userInfo.getProviderId());
                 }
 
                 loginCompletableSubject.onSuccess(user);

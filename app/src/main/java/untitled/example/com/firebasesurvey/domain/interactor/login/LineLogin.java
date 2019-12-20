@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 import com.linecorp.linesdk.Scope;
@@ -16,13 +17,12 @@ import com.linecorp.linesdk.auth.LineLoginResult;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Arrays;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.SingleSubject;
 import timber.log.Timber;
 import untitled.example.com.firebasesurvey.domain.repository.cloud.FirebaseFunctionApiClient;
@@ -80,9 +80,9 @@ public class LineLogin implements SocialLogin {
                 // Sign in success, update UI with the signed-in user's information
                 Timber.d("signInWithCustomToken:success");
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                Timber.d("getProviders size = " + user.getProviders().size());
-                for (String providerId : user.getProviders()) {
-                    Timber.d("getProviders = " + providerId);
+                Timber.d("getProviders size = " + user.getProviderData().size());
+                for (UserInfo userInfo : user.getProviderData()) {
+                    Timber.d("getProviders = " + userInfo.getProviderId());
                 }
                 loginCompletableSubject.onSuccess(user);
                 //updateIdIdentifier(user);

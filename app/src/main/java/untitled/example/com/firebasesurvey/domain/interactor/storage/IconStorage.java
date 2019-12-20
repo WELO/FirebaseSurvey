@@ -1,7 +1,9 @@
 package untitled.example.com.firebasesurvey.domain.interactor.storage;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -14,7 +16,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
+import android.net.Uri;
+
+import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -82,15 +86,27 @@ public class IconStorage implements DataStorage<Bitmap> {
                         .addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
                             @Override
                             public void onSuccess(StorageMetadata storageMetadata) {
-                                Timber.d("updateMetadata "+ appIcon.getImageName() + " onSuccess");
+                                Timber.d("updateMetadata " + appIcon.getImageName() + " onSuccess");
+                                getDownloadUrl(image);
+
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
-                                Timber.d("updateMetadata "+ appIcon.getImageName() + " onFailure");
+                                Timber.d("updateMetadata " + appIcon.getImageName() + " onFailure");
                             }
                         });
+            }
+        });
+    }
+
+    private void getDownloadUrl(StorageReference image){
+        image.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                Uri uri = task.getResult();
+                Timber.d("getDownloadUrl = "+ uri.toString());
             }
         });
     }

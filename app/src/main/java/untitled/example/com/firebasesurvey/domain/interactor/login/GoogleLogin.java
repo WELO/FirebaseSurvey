@@ -15,7 +15,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
